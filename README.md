@@ -1,12 +1,12 @@
-# FetalBUAD
+# ReAge
 
 **Unsupervised anomaly detection in fetal brain MRI**
 
 [Inputs](#prepare-the-inputs) · [Train the two networks](#train-the-two-networks) · [Score an examination](#score-an-examination)
 
-FetalBUAD asks two questions about a fetal brain MRI. Which structures differ from an atlas-guided reconstruction? Where do the original and reconstructed images give different estimates of local brain age? The model combines these signals into a three-dimensional anomaly map and a single score per examination.
+ReAge asks two questions about a fetal brain MRI. Which structures differ from an atlas-guided reconstruction? Where do the original and reconstructed images give different estimates of local brain age? The model combines these signals into a three-dimensional anomaly map and a single score per examination.
 
-![FetalBUAD method overview. The upper panel shows voxel-level brain-age training and atlas-guided reconstruction. The lower panel shows how both networks produce the anomaly map.](overview.png)
+![ReAge method overview. The upper panel shows voxel-level brain-age training and atlas-guided reconstruction. The lower panel shows how both networks produce the anomaly map.](overview.png)
 
 | Branch | Training signal | Role at inference |
 | --- | --- | --- |
@@ -45,13 +45,13 @@ Both networks learn from normal examinations and can be trained independently. U
 **1 · Train the voxel-level brain-age predictor**
 
 ```sh
-python -m fetalbuad.age --train splits/age_train.csv --val splits/age_val.csv --output checkpoints/age.pt
+python -m reage.age --train splits/age_train.csv --val splits/age_val.csv --output checkpoints/age.pt
 ```
 
 **2 · Train the atlas-guided reconstruction network**
 
 ```sh
-python -m fetalbuad.reconstruction --train splits/recon_train.csv --val splits/recon_val.csv --atlas-dir data/atlases --output checkpoints/reconstruction.pt
+python -m reage.reconstruction --train splits/recon_train.csv --val splits/recon_val.csv --atlas-dir data/atlases --output checkpoints/reconstruction.pt
 ```
 
 The upper-right panel of the original figure labels the reconstruction loss as L1. The training code uses **foreground mean squared error** plus a tissue Dice loss weighted by 0.01. Absolute reconstruction error is used when generating the inference heatmap.
@@ -59,7 +59,7 @@ The upper-right panel of the original figure labels the reconstruction loss as L
 ## Score an examination
 
 ```sh
-python -m fetalbuad.inference --image data/exam/mri.nii.gz --mask data/exam/brain.nii.gz --age-weeks 29.5 --atlas-dir data/atlases --age-checkpoint checkpoints/age.pt --recon-checkpoint checkpoints/reconstruction.pt --output results/example
+python -m reage.inference --image data/exam/mri.nii.gz --mask data/exam/brain.nii.gz --age-weeks 29.5 --atlas-dir data/atlases --age-checkpoint checkpoints/age.pt --recon-checkpoint checkpoints/reconstruction.pt --output results/example
 ```
 
 If preprocessing provides a separately aligned MRI foreground, pass it with `--foreground data/exam/foreground.nii.gz` to reproduce that foreground definition. The case score still uses the complete scoring mask.
