@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+.venv/
+.env
+data/
+splits/
+checkpoints/
+results/
+*.pt
+*.pth
+*.nii
+*.nii.gz
+*.npy
+*.npz
